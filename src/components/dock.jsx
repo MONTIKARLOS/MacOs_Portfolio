@@ -1,22 +1,24 @@
 import { useRef } from "react";
 import { Tooltip } from 'react-tooltip'
 import { dockApps } from "#constants/index.js";
-import {useGSAP} from "@gsap/react";
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import useWindowStore from "#store/window.js";
 
 const Dock = () => {
+    const { openWindow, closeWindow, windows } = useWindowStore();
     const dockRef = useRef(null);
 
-    useGSAP(() =>{
+    useGSAP(() => {
         const dock = dockRef.current;
-        if(!dock) return;
+        if (!dock) return;
 
         const icons = dock.querySelectorAll(".dock-icon");
 
         const animateIcon = (mouseX) => {
-            const {left} = dock.getBoundingClientRect();
+            const { left } = dock.getBoundingClientRect();
             icons.forEach((icon) => {
-                const {left: iconLeft, width} = icon.getBoundingClientRect();
+                const { left: iconLeft, width } = icon.getBoundingClientRect();
                 const center = iconLeft - left + width / 2;
                 const distance = Math.abs(mouseX - center);
 
@@ -33,7 +35,7 @@ const Dock = () => {
         };
 
         const handleMouseMove = (e) => {
-            const {left} = dock.getBoundingClientRect();
+            const { left } = dock.getBoundingClientRect();
             animateIcon(e.clientX - left);
 
         };
@@ -42,23 +44,37 @@ const Dock = () => {
             icons.forEach((icon) =>
                 gsap.to(icon, {
                     scale: 1,
-                    Y:0,
+                    y: 0,
                     duration: 0.3,
                     ease: "power1.out",
                 }),
             );
-        dock.addEventListener('mousemove',handleMouseMove);
-        dock.addEventListener('mouseleave',resetIcon);
+        dock.addEventListener('mousemove', handleMouseMove);
+        dock.addEventListener('mouseleave', resetIcon);
 
         return () => {
-            dock.removeEventListener('mousemove',handleMouseMove);
-            dock.removeEventListener('mouseleave',resetIcon);
+            dock.removeEventListener('mousemove', handleMouseMove);
+            dock.removeEventListener('mouseleave', resetIcon);
         };
-        },[]);
+    }, []);
 
 
     const toggleApp = (app) => {
+        // TODO implement open window logic
+        if (!app.canOpen) return;
 
+        const window = windows[app.id];
+
+        if (!window) {
+            console.error(`window not found for app: ${app.id}`);
+            return;
+        }
+
+        if (window.isOpen) {
+            closeWindow(app.id);
+        } else {
+            openWindow(app.id);
+        }
     };
 
     return (

@@ -1,10 +1,19 @@
+import gsap from "gsap";
+import { Draggable } from "gsap/Draggable";
+
+
 import { Navbar, Welcome, Dock } from "./components";
+import Terminal from "#windows/Terminal.jsx";
+
+gsap.registerPlugin(Draggable);
+
 const App = () => {
     return (
         <main>
-            < Navbar />
-            < Welcome />
-            < Dock />
+            <Navbar />
+            <Welcome />
+            <Dock />
+            <Terminal />
         </main>
     )
 };
